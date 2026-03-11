@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -14,8 +15,12 @@ type Store struct {
 
 // getConfigPath returns ~/.goto.json
 func getConfigPath() string {
-	home, _ := os.UserHomeDir()
-	return home + "/.goto.json"
+	home, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Println("Error getting home directory:", err)
+		os.Exit(1)
+	}
+	return filepath.Join(home, ".goto.json") // filepath.Join handles / vs \ automatically
 }
 
 // loadStore reads the saved directories from disk
@@ -39,51 +44,6 @@ func saveStore(store Store) error {
 }
 
 func main() {
-	// fmt.Println("Hello World from Go!")
-	// scanner := bufio.NewScanner(os.Stdin)
-	// fmt.Print("Enter a line: ")
-	// scanner.Scan()
-
-	// fmt.Println("You entered:", scanner.Text())
-
-	// save directory path and name
-	// remove directory path and name
-	// list directory path and name
-	// jump to directory path and name
-
-	// save directory path and name
-	// var splitCommand = strings.Split(scanner.Text(), " ")
-	// var mainCommand = splitCommand[0]
-	// var command = splitCommand[1]
-	// var directoryPath = splitCommand[2]
-	// var directoryName = splitCommand[3]
-
-	// if mainCommand == "goto" {
-	// 	if command == "add" {
-	// 		// save directory path and name
-
-	// 	}
-
-	// 	if command == "remove" {
-	// 		// remove directory path and name
-
-	// 	}
-
-	// 	if command == "list" {
-	// 		// list directory path and name
-
-	// 	}
-
-	// 	if command == "jump" {
-	// 		// jump to directory path and name
-
-	// 	}
-	// }
-
-	// fmt.Println(mainCommand)
-	// fmt.Println(command)
-	// fmt.Println(directoryPath)
-	// fmt.Println(directoryName)
 
 	args := os.Args
 
