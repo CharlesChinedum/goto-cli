@@ -8,33 +8,29 @@ import (
 	"strings"
 )
 
-// Store is the structure for saved directories
 type Store struct {
-	Directories map[string]string `json:"directories"` // name -> path
+	Directories map[string]string `json:"directories"`
 }
 
-// getConfigPath returns ~/.goto.json
 func getConfigPath() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		fmt.Println("Error getting home directory:", err)
 		os.Exit(1)
 	}
-	return filepath.Join(home, ".goto.json") // filepath.Join handles / vs \ automatically
+	return filepath.Join(home, ".goto.json")
 }
 
-// loadStore reads the saved directories from disk
 func loadStore() Store {
 	store := Store{Directories: make(map[string]string)}
 	data, err := os.ReadFile(getConfigPath())
 	if err != nil {
-		return store // return empty store if file doesn't exist yet
+		return store
 	}
 	json.Unmarshal(data, &store)
 	return store
 }
 
-// saveStore writes the directories to disk
 func saveStore(store Store) error {
 	data, err := json.MarshalIndent(store, "", "  ")
 	if err != nil {
@@ -65,7 +61,7 @@ func main() {
 				return
 			}
 			name := args[3]
-			path := strings.Join(args[4:], " ") // handles paths with spaces
+			path := strings.Join(args[4:], " ")
 			store.Directories[name] = path
 			saveStore(store)
 			fmt.Printf("Saved '%s' -> %s\n", name, path)
@@ -101,6 +97,39 @@ func main() {
 				os.Exit(1)
 			}
 			fmt.Println(path)
+
+		case "edit":
+			if len(args) < 5 {
+				fmt.Println("Usage: gotocli goto edit <name> <newpath>")
+				return
+			}
+			name := args[3]
+			newPath := strings.Join(args[4:], " ")
+			_, exists := store.Directories[name]
+			if !exists {
+				fmt.Fprintf(os.Stderr, "No directory found with name '%s'\n", name)
+				os.Exit(1)
+			}
+			store.Directories[name] = newPath
+			saveStore(store)
+			fmt.Printf("Updated '%s' -> %s\n", name, newPath)
+
+		case "rename":
+			if len(args) < 5 {
+				fmt.Println("Usage: gotocli goto rename <oldname> <newname>")
+				return
+			}
+			oldName := args[3]
+			newName := args[4]
+			path, exists := store.Directories[oldName]
+			if !exists {
+				fmt.Fprintf(os.Stderr, "No directory found with name '%s'\n", oldName)
+				os.Exit(1)
+			}
+			store.Directories[newName] = path
+			delete(store.Directories, oldName)
+			saveStore(store)
+			fmt.Printf("Renamed '%s' -> '%s'\n", oldName, newName)
 
 		default:
 			fmt.Println("Unknown command:", command)
