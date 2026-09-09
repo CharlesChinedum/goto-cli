@@ -1,5 +1,8 @@
 # gotocli
 
+[![CI](https://github.com/CharlesChinedum/goto-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/CharlesChinedum/goto-cli/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A cross-platform CLI tool to save and jump to directories quickly.
 
 ## Installation
@@ -145,6 +148,18 @@ goto rename projects work-projects
 
 ---
 
+## Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for how to build from source, the checks CI runs on every pull request, and how to submit changes. This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md).
+
+---
+
+## Security
+
+Please do not report security issues in public issues. See [SECURITY.md](SECURITY.md) for how to report a vulnerability privately.
+
+---
+
 ## License
 
-MIT
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
