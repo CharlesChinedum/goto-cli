@@ -1,0 +1,3 @@
+# Default owner for everything in the repo.
+# Reviews from a code owner are requested automatically on pull requests.
+*   @CharlesChinedum

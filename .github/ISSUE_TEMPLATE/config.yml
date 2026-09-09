@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+    - name: Report a security vulnerability
+      url: https://github.com/CharlesChinedum/goto-cli/security/advisories/new
+      about: Please report security issues privately here instead of opening a public issue.
+    - name: Questions and usage help
+      url: https://github.com/CharlesChinedum/goto-cli/blob/main/README.md
+      about: Check the README first, especially the shell wrapper setup and the commands summary.

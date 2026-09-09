@@ -1,0 +1,18 @@
+version: 2
+updates:
+    # Go modules. go.mod currently has no dependencies, so this will only act
+    # if some are added later.
+    - package-ecosystem: gomod
+      directory: /
+      schedule:
+          interval: weekly
+      labels:
+          - dependencies
+
+    # Actions used in .github/workflows/*.yml
+    - package-ecosystem: github-actions
+      directory: /
+      schedule:
+          interval: weekly
+      labels:
+          - dependencies
