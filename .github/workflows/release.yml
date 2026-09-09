@@ -27,6 +27,6 @@ jobs:
                   GOOS=windows GOARCH=amd64 go build -o builds/gotocli.exe app/main.go
 
             - name: Release
-              uses: softprops/action-gh-release@v1
+              uses: softprops/action-gh-release@v3
               with:
                   files: builds/*
