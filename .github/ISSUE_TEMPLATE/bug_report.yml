@@ -1,0 +1,83 @@
+name: Bug report
+description: Something in gotocli or the goto shell wrapper is not working as documented
+title: "[Bug]: "
+labels:
+    - bug
+body:
+    - type: markdown
+      attributes:
+          value: |
+              Thanks for taking the time to report a bug. If this is a **security** problem, please do not file it here; see [SECURITY.md](../blob/main/SECURITY.md) instead.
+
+    - type: input
+      id: version
+      attributes:
+          label: gotocli version
+          description: The release tag you downloaded (e.g. `v1.0.0`), or the commit hash if you built from source.
+          placeholder: v1.0.0
+      validations:
+          required: true
+
+    - type: dropdown
+      id: os
+      attributes:
+          label: Operating system
+          options:
+              - macOS (Apple Silicon)
+              - macOS (Intel)
+              - Linux
+              - Windows
+              - Other (say which in the description)
+      validations:
+          required: true
+
+    - type: dropdown
+      id: shell
+      attributes:
+          label: Shell
+          description: Which shell wrapper from the README are you using?
+          options:
+              - zsh
+              - bash
+              - PowerShell
+              - Other (say which in the description)
+      validations:
+          required: true
+
+    - type: textarea
+      id: command
+      attributes:
+          label: Command you ran
+          description: The exact `goto ...` or `gotocli goto ...` command, with any names or paths involved.
+          render: shell
+      validations:
+          required: true
+
+    - type: textarea
+      id: expected
+      attributes:
+          label: What you expected to happen
+      validations:
+          required: true
+
+    - type: textarea
+      id: actual
+      attributes:
+          label: What actually happened
+          description: Paste the full output, including any error messages.
+          render: shell
+      validations:
+          required: true
+
+    - type: textarea
+      id: store
+      attributes:
+          label: Contents of ~/.goto.json (optional)
+          description: If the bug involves saved directories, paste the file here. Remove any paths you would rather not share.
+          render: json
+
+    - type: textarea
+      id: extra
+      attributes:
+          label: Anything else?
+          description: Screenshots, whether it worked in a previous version, unusual characters in names or paths, etc.

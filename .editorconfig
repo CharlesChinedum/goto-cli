@@ -1,0 +1,27 @@
+# EditorConfig: https://editorconfig.org
+# There is no prettier/other formatter config in this repo; settings below match
+# gofmt for Go and the existing 4-space style of .github/workflows/release.yml.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# gofmt uses tabs
+[*.go]
+indent_style = tab
+
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 4
+
+[*.md]
+indent_style = space
+indent_size = 2
+# Two trailing spaces are a hard line break in Markdown
+trim_trailing_whitespace = false
+
+[Makefile]
+indent_style = tab
