@@ -12,21 +12,30 @@ jobs:
     build:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
 
             - name: Set up Go
-              uses: actions/setup-go@v4
+              uses: actions/setup-go@v5
               with:
                   go-version: "1.21"
 
+            - name: Run go vet
+              run: go vet ./...
+
+            - name: Run go test
+              run: go test ./...
+
             - name: Build all platforms
+              env:
+                  VERSION: ${{ github.ref_name }}
               run: |
-                  GOOS=darwin GOARCH=amd64 go build -o builds/gotocli-mac-intel app/main.go
-                  GOOS=darwin GOARCH=arm64 go build -o builds/gotocli-mac-arm app/main.go
-                  GOOS=linux GOARCH=amd64 go build -o builds/gotocli-linux app/main.go
-                  GOOS=windows GOARCH=amd64 go build -o builds/gotocli.exe app/main.go
+                  LDFLAGS="-ldflags -X main.version=$VERSION"
+                  GOOS=darwin GOARCH=amd64 go build -o builds/gotocli-mac-intel -ldflags "-X main.version=$VERSION" app/main.go
+                  GOOS=darwin GOARCH=arm64 go build -o builds/gotocli-mac-arm -ldflags "-X main.version=$VERSION" app/main.go
+                  GOOS=linux GOARCH=amd64 go build -o builds/gotocli-linux -ldflags "-X main.version=$VERSION" app/main.go
+                  GOOS=windows GOARCH=amd64 go build -o builds/gotocli.exe -ldflags "-X main.version=$VERSION" app/main.go
 
             - name: Release
-              uses: softprops/action-gh-release@v1
+              uses: softprops/action-gh-release@v2
               with:
                   files: builds/*
