@@ -8,6 +8,9 @@ import (
 	"strings"
 )
 
+// version is stamped at release time via -ldflags.
+var version = "dev"
+
 type Store struct {
 	Directories map[string]string `json:"directories"`
 }
@@ -42,6 +45,15 @@ func saveStore(store Store) error {
 func main() {
 
 	args := os.Args
+
+	// Handle version before the argument guard so that both
+	// "gotocli version" and "gotocli --version" work.
+	if len(args) >= 2 {
+		if args[1] == "version" || args[1] == "--version" || args[1] == "-v" {
+			fmt.Println(version)
+			return
+		}
+	}
 
 	if len(args) < 3 {
 		fmt.Println("Usage: gotocli goto <command> [name] [path]")
