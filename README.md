@@ -107,6 +107,9 @@ goto remove <name>
 goto remove projects
 ```
 
+If the name is not saved, the command prints an error to stderr and exits with
+status 1. Your saved directories are left unchanged.
+
 ### Edit a saved directory path
 
 ```bash
@@ -134,7 +137,7 @@ goto rename projects work-projects
 | `goto add`    | `goto add <name> <path>`          | Save a directory           |
 | `goto list`   | `goto list`                       | List all saved directories |
 | `goto jump`   | `goto jump <name>`                | Jump to a directory        |
-| `goto remove` | `goto remove <name>`              | Remove a saved directory   |
+| `goto remove` | `goto remove <name>`              | Remove a saved directory; fail if not found |
 | `goto edit`   | `goto edit <name> <newpath>`      | Update a directory path    |
 | `goto rename` | `goto rename <oldname> <newname>` | Rename a saved directory   |
 
