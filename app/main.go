@@ -56,8 +56,8 @@ func main() {
 	}
 
 	if len(args) < 3 {
-		fmt.Println("Usage: gotocli goto <command> [name] [path]")
-		return
+		fmt.Fprintln(os.Stderr, "Usage: gotocli goto <command> [name] [path]")
+		os.Exit(1)
 	}
 
 	mainCommand := args[1]
@@ -69,8 +69,8 @@ func main() {
 		switch command {
 		case "add":
 			if len(args) < 5 {
-				fmt.Println("Usage: gotocli goto add <name> <path>")
-				return
+				fmt.Fprintln(os.Stderr, "Usage: gotocli goto add <name> <path>")
+				os.Exit(1)
 			}
 			name := args[3]
 			path := strings.Join(args[4:], " ")
@@ -80,8 +80,8 @@ func main() {
 
 		case "remove":
 			if len(args) < 4 {
-				fmt.Println("Usage: gotocli goto remove <name>")
-				return
+				fmt.Fprintln(os.Stderr, "Usage: gotocli goto remove <name>")
+				os.Exit(1)
 			}
 			name := args[3]
 			if _, exists := store.Directories[name]; !exists {
@@ -103,8 +103,8 @@ func main() {
 
 		case "jump":
 			if len(args) < 4 {
-				fmt.Println("Usage: gotocli goto jump <name>")
-				return
+				fmt.Fprintln(os.Stderr, "Usage: gotocli goto jump <name>")
+				os.Exit(1)
 			}
 			name := args[3]
 			path, exists := store.Directories[name]
@@ -116,8 +116,8 @@ func main() {
 
 		case "edit":
 			if len(args) < 5 {
-				fmt.Println("Usage: gotocli goto edit <name> <newpath>")
-				return
+				fmt.Fprintln(os.Stderr, "Usage: gotocli goto edit <name> <newpath>")
+				os.Exit(1)
 			}
 			name := args[3]
 			newPath := strings.Join(args[4:], " ")
@@ -132,8 +132,8 @@ func main() {
 
 		case "rename":
 			if len(args) < 5 {
-				fmt.Println("Usage: gotocli goto rename <oldname> <newname>")
-				return
+				fmt.Fprintln(os.Stderr, "Usage: gotocli goto rename <oldname> <newname>")
+				os.Exit(1)
 			}
 			oldName := args[3]
 			newName := args[4]
@@ -148,8 +148,12 @@ func main() {
 			fmt.Printf("Renamed '%s' -> '%s'\n", oldName, newName)
 
 		default:
-			fmt.Println("Unknown command:", command)
+			fmt.Fprintln(os.Stderr, "Unknown command:", command)
+			os.Exit(1)
 		}
+	} else {
+		fmt.Fprintf(os.Stderr, "Unknown command: %s (expected 'goto')\n", mainCommand)
+		os.Exit(1)
 	}
 
 }

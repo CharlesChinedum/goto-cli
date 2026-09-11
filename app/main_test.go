@@ -83,3 +83,74 @@ func TestRemove(t *testing.T) {
 		})
 	}
 }
+
+func TestUsageAndUnknownErrors(t *testing.T) {
+	binary := filepath.Join(t.TempDir(), "gotocli")
+	if runtime.GOOS == "windows" {
+		binary += ".exe"
+	}
+	if output, err := exec.Command("go", "build", "-o", binary, ".").CombinedOutput(); err != nil {
+		t.Fatalf("build: %v\n%s", err, output)
+	}
+
+	for _, tc := range []struct {
+		name       string
+		args       []string
+		wantStderr string
+	}{
+		{"too few args", []string{}, "Usage: gotocli goto <command> [name] [path]\n"},
+		{"jump usage", []string{"goto", "jump"}, "Usage: gotocli goto jump <name>\n"},
+		{"unknown subcommand", []string{"goto", "bogus"}, "Unknown command: bogus\n"},
+		{"non-goto first arg", []string{"list", "x"}, "Unknown command: list (expected 'goto')\n"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			testHome := t.TempDir()
+			cmd := exec.Command(binary, tc.args...)
+			cmd.Env = append(os.Environ(), "HOME="+testHome, "USERPROFILE="+testHome)
+			var stdout, stderr bytes.Buffer
+			cmd.Stdout, cmd.Stderr = &stdout, &stderr
+			err := cmd.Run()
+			if cmd.ProcessState == nil {
+				t.Fatalf("start CLI: %v", err)
+			}
+			if got := cmd.ProcessState.ExitCode(); got != 1 {
+				t.Errorf("exit code = %d, want 1; stdout=%q stderr=%q", got, &stdout, &stderr)
+			}
+			if stdout.Len() != 0 {
+				t.Errorf("stdout should be empty, got %q", &stdout)
+			}
+			if stderr.String() != tc.wantStderr {
+				t.Errorf("stderr = %q, want %q", &stderr, tc.wantStderr)
+			}
+		})
+	}
+}
+
+func TestJumpWritesPathToStdout(t *testing.T) {
+	binary := filepath.Join(t.TempDir(), "gotocli")
+	if runtime.GOOS == "windows" {
+		binary += ".exe"
+	}
+	if output, err := exec.Command("go", "build", "-o", binary, ".").CombinedOutput(); err != nil {
+		t.Fatalf("build: %v\n%s", err, output)
+	}
+
+	testHome := t.TempDir()
+	configPath := filepath.Join(testHome, ".goto.json")
+	if err := os.WriteFile(configPath, []byte(`{"directories":{"scratch":"/tmp/scratch"}}`+"\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	cmd := exec.Command(binary, "goto", "jump", "scratch")
+	cmd.Env = append(os.Environ(), "HOME="+testHome, "USERPROFILE="+testHome)
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout, cmd.Stderr = &stdout, &stderr
+	if err := cmd.Run(); err != nil {
+		t.Fatalf("run: %v; stdout=%q stderr=%q", err, &stdout, &stderr)
+	}
+	if stdout.String() != "/tmp/scratch\n" {
+		t.Errorf("stdout = %q, want path", &stdout)
+	}
+	if stderr.Len() != 0 {
+		t.Errorf("stderr should be empty, got %q", &stderr)
+	}
+}

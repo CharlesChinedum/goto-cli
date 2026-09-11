@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Usage and unknown-command messages go to stderr and exit 1; a non-`goto` first argument is no longer a silent no-op.
 - Removing an unknown bookmark now reports an error and exits with status 1 without rewriting or creating the store.
 
 ### Added
