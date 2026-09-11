@@ -84,6 +84,10 @@ func main() {
 				return
 			}
 			name := args[3]
+			if _, exists := store.Directories[name]; !exists {
+				fmt.Fprintf(os.Stderr, "No directory found for '%s'\n", name)
+				os.Exit(1)
+			}
 			delete(store.Directories, name)
 			saveStore(store)
 			fmt.Printf("Removed '%s'\n", name)

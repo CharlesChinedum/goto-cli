@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Removing an unknown bookmark now reports an error and exits with status 1 without rewriting or creating the store.
+
 ### Added
 
 - MIT `LICENSE` file (the README previously claimed MIT without shipping the text)
