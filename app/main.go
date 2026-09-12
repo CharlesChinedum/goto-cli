@@ -142,9 +142,15 @@ func main() {
 				fmt.Fprintf(os.Stderr, "No directory found with name '%s'\n", oldName)
 				os.Exit(1)
 			}
-			store.Directories[newName] = path
-			delete(store.Directories, oldName)
-			saveStore(store)
+			if newName != oldName {
+				if _, clash := store.Directories[newName]; clash {
+					fmt.Fprintf(os.Stderr, "'%s' already exists; remove it first\n", newName)
+					os.Exit(1)
+				}
+				store.Directories[newName] = path
+				delete(store.Directories, oldName)
+				saveStore(store)
+			}
 			fmt.Printf("Renamed '%s' -> '%s'\n", oldName, newName)
 
 		default:
