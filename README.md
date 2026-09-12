@@ -25,24 +25,25 @@ Move `gotocli.exe` to `C:\Program Files\gotocli\`
 
 ```bash
 function goto() {
+    local bin=${GOTOCLI_BIN:-gotocli}
     local command=$1
     local name=$2
     local path=$3
     local extra=$4
 
     if [ "$command" = "jump" ]; then
-        TARGET=$(/usr/local/bin/gotocli goto jump "$name" 2>/dev/null)
+        TARGET=$("$bin" goto jump "$name" 2>/dev/null)
         if [ -z "$TARGET" ]; then
             echo "No directory found for '$name'"
         else
             cd "$TARGET"
         fi
     elif [ "$command" = "edit" ]; then
-        /usr/local/bin/gotocli goto edit "$name" "$path"
+        "$bin" goto edit "$name" "$path"
     elif [ "$command" = "rename" ]; then
-        /usr/local/bin/gotocli goto rename "$name" "$path"
+        "$bin" goto rename "$name" "$path"
     else
-        /usr/local/bin/gotocli goto "$command" "$name" "$path" "$extra"
+        "$bin" goto "$command" "$name" "$path" "$extra"
     fi
 }
 ```
@@ -52,20 +53,21 @@ function goto() {
 ```powershell
 function goto {
     param($command, $name, $path, $extra)
+    $bin = if ($env:GOTOCLI_BIN) { $env:GOTOCLI_BIN } else { "gotocli" }
 
     if ($command -eq "jump") {
-        $TARGET = & "C:\Program Files\gotocli\gotocli.exe" goto jump $name 2>$null
+        $TARGET = & $bin goto jump $name 2>$null
         if (-not $TARGET) {
             Write-Host "No directory found for '$name'"
         } else {
             Set-Location $TARGET
         }
     } elseif ($command -eq "edit") {
-        & "C:\Program Files\gotocli\gotocli.exe" goto edit $name $path
+        & $bin goto edit $name $path
     } elseif ($command -eq "rename") {
-        & "C:\Program Files\gotocli\gotocli.exe" goto rename $name $path
+        & $bin goto rename $name $path
     } else {
-        & "C:\Program Files\gotocli\gotocli.exe" goto $command $name $path $extra
+        & $bin goto $command $name $path $extra
     }
 }
 ```
