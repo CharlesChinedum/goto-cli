@@ -24,14 +24,22 @@ func getConfigPath() string {
 	return filepath.Join(home, ".goto.json")
 }
 
-func loadStore() Store {
-	store := Store{Directories: make(map[string]string)}
+func loadStore() (Store, error) {
+	store := Store{Directories: map[string]string{}}
 	data, err := os.ReadFile(getConfigPath())
-	if err != nil {
-		return store
+	if os.IsNotExist(err) {
+		return store, nil
 	}
-	json.Unmarshal(data, &store)
-	return store
+	if err != nil {
+		return store, err
+	}
+	if err := json.Unmarshal(data, &store); err != nil {
+		return store, fmt.Errorf("%s is corrupt: %w", getConfigPath(), err)
+	}
+	if store.Directories == nil {
+		store.Directories = map[string]string{}
+	}
+	return store, nil
 }
 
 func saveStore(store Store) error {
@@ -64,7 +72,11 @@ func main() {
 	command := args[2]
 
 	if mainCommand == "goto" {
-		store := loadStore()
+		store, err := loadStore()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error loading bookmarks: %v\n", err)
+			os.Exit(1)
+		}
 
 		switch command {
 		case "add":
