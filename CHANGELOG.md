@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Removing an unknown bookmark now reports an error and exits with status 1 without rewriting or creating the store.
+- Store writes now go through a temp file, fsync, and rename so `~/.goto.json` is not truncated in place. A failed save prints an error to stderr and exits 1 instead of claiming success.
 
 ### Added
 

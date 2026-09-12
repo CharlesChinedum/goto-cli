@@ -39,7 +39,39 @@ func saveStore(store Store) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(getConfigPath(), data, 0644)
+	p := getConfigPath()
+	tmp := p + ".tmp"
+	f, err := os.OpenFile(tmp, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		return err
+	}
+	_, werr := f.Write(data)
+	serr := f.Sync()
+	cerr := f.Close()
+	if werr != nil {
+		os.Remove(tmp)
+		return werr
+	}
+	if serr != nil {
+		os.Remove(tmp)
+		return serr
+	}
+	if cerr != nil {
+		os.Remove(tmp)
+		return cerr
+	}
+	if err := os.Rename(tmp, p); err != nil {
+		os.Remove(tmp)
+		return err
+	}
+	return nil
+}
+
+func mustSave(store Store) {
+	if err := saveStore(store); err != nil {
+		fmt.Fprintf(os.Stderr, "Error saving store: %v\n", err)
+		os.Exit(1)
+	}
 }
 
 func main() {
@@ -75,7 +107,7 @@ func main() {
 			name := args[3]
 			path := strings.Join(args[4:], " ")
 			store.Directories[name] = path
-			saveStore(store)
+			mustSave(store)
 			fmt.Printf("Saved '%s' -> %s\n", name, path)
 
 		case "remove":
@@ -89,7 +121,7 @@ func main() {
 				os.Exit(1)
 			}
 			delete(store.Directories, name)
-			saveStore(store)
+			mustSave(store)
 			fmt.Printf("Removed '%s'\n", name)
 
 		case "list":
@@ -127,7 +159,7 @@ func main() {
 				os.Exit(1)
 			}
 			store.Directories[name] = newPath
-			saveStore(store)
+			mustSave(store)
 			fmt.Printf("Updated '%s' -> %s\n", name, newPath)
 
 		case "rename":
@@ -144,7 +176,7 @@ func main() {
 			}
 			store.Directories[newName] = path
 			delete(store.Directories, oldName)
-			saveStore(store)
+			mustSave(store)
 			fmt.Printf("Renamed '%s' -> '%s'\n", oldName, newName)
 
 		default:
