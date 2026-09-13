@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Removing an unknown bookmark now reports an error and exits with status 1 without rewriting or creating the store.
+- `add`, `edit`, and `rename` now reject empty or whitespace-only names and values (exit 1) instead of storing blank keys or wiping paths.
 
 ### Added
 
