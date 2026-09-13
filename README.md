@@ -7,10 +7,19 @@ A cross-platform CLI tool to save and jump to directories quickly.
 
 ## Installation
 
+Download the asset for your machine from the [latest release](https://github.com/CharlesChinedum/goto-cli/releases/latest). Release files are named `gotocli-mac-arm`, `gotocli-mac-intel`, `gotocli-linux`, and `gotocli.exe` — there is no file named `gotocli`.
+
 ### Mac & Linux
 
 ```bash
-sudo mv gotocli /usr/local/bin/
+# macOS Apple Silicon (use gotocli-mac-intel on an Intel Mac)
+chmod +x gotocli-mac-arm
+xattr -d com.apple.quarantine gotocli-mac-arm   # unsigned binary; clears the Gatekeeper prompt
+sudo mv gotocli-mac-arm /usr/local/bin/gotocli
+
+# Linux
+chmod +x gotocli-linux
+sudo mv gotocli-linux /usr/local/bin/gotocli
 ```
 
 ### Windows
