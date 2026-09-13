@@ -72,8 +72,12 @@ func main() {
 				fmt.Println("Usage: gotocli goto add <name> <path>")
 				return
 			}
-			name := args[3]
-			path := strings.Join(args[4:], " ")
+			name := strings.TrimSpace(args[3])
+			path := strings.TrimSpace(strings.Join(args[4:], " "))
+			if name == "" || path == "" {
+				fmt.Fprintln(os.Stderr, "Usage: gotocli goto add <name> <path>")
+				os.Exit(1)
+			}
 			store.Directories[name] = path
 			saveStore(store)
 			fmt.Printf("Saved '%s' -> %s\n", name, path)
@@ -119,8 +123,12 @@ func main() {
 				fmt.Println("Usage: gotocli goto edit <name> <newpath>")
 				return
 			}
-			name := args[3]
-			newPath := strings.Join(args[4:], " ")
+			name := strings.TrimSpace(args[3])
+			newPath := strings.TrimSpace(strings.Join(args[4:], " "))
+			if name == "" || newPath == "" {
+				fmt.Fprintln(os.Stderr, "Usage: gotocli goto edit <name> <newpath>")
+				os.Exit(1)
+			}
 			_, exists := store.Directories[name]
 			if !exists {
 				fmt.Fprintf(os.Stderr, "No directory found with name '%s'\n", name)
@@ -135,8 +143,12 @@ func main() {
 				fmt.Println("Usage: gotocli goto rename <oldname> <newname>")
 				return
 			}
-			oldName := args[3]
-			newName := args[4]
+			oldName := strings.TrimSpace(args[3])
+			newName := strings.TrimSpace(args[4])
+			if oldName == "" || newName == "" {
+				fmt.Fprintln(os.Stderr, "Usage: gotocli goto rename <oldname> <newname>")
+				os.Exit(1)
+			}
 			path, exists := store.Directories[oldName]
 			if !exists {
 				fmt.Fprintf(os.Stderr, "No directory found with name '%s'\n", oldName)
