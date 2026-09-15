@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `goto list` now prints bookmarks in alphabetical order instead of random map order.
 - Usage and unknown-command errors now go to stderr with exit code 1; a non-`goto` first argument is rejected instead of silently ignored.
 - Removing an unknown bookmark now reports an error and exits with status 1 without rewriting or creating the store.
 
