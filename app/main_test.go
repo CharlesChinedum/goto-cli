@@ -123,6 +123,9 @@ func captureOutput(t *testing.T, fn func() int) (stdout, stderr string, code int
 }
 
 func TestRun_UsageAndUnknownGoToStderr(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	t.Setenv("USERPROFILE", os.Getenv("HOME")) // Windows
+
 	// Not parallel: captureOutput swaps process-wide os.Stdout/os.Stderr.
 	tests := []struct {
 		name       string
