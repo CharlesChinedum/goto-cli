@@ -18,7 +18,7 @@ type Store struct {
 func getConfigPath() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		fmt.Println("Error getting home directory:", err)
+		fmt.Fprintln(os.Stderr, "Error getting home directory:", err)
 		os.Exit(1)
 	}
 	return filepath.Join(home, ".goto.json")
@@ -42,114 +42,123 @@ func saveStore(store Store) error {
 	return os.WriteFile(getConfigPath(), data, 0644)
 }
 
+func usage(msg string) int {
+	fmt.Fprintln(os.Stderr, msg)
+	return 1
+}
+
 func main() {
+	os.Exit(run(os.Args))
+}
 
-	args := os.Args
-
+// run executes the CLI for the given argv (including program name) and
+// returns the process exit code. Usage and unknown-command diagnostics go
+// to stderr with a non-zero status so wrappers that treat stdout as a path
+// never cd into a usage string.
+func run(args []string) int {
 	// Handle version before the argument guard so that both
 	// "gotocli version" and "gotocli --version" work.
 	if len(args) >= 2 {
 		if args[1] == "version" || args[1] == "--version" || args[1] == "-v" {
 			fmt.Println(version)
-			return
+			return 0
 		}
 	}
 
 	if len(args) < 3 {
-		fmt.Println("Usage: gotocli goto <command> [name] [path]")
-		return
+		return usage("Usage: gotocli goto <command> [name] [path]")
 	}
 
 	mainCommand := args[1]
 	command := args[2]
 
-	if mainCommand == "goto" {
-		store := loadStore()
-
-		switch command {
-		case "add":
-			if len(args) < 5 {
-				fmt.Println("Usage: gotocli goto add <name> <path>")
-				return
-			}
-			name := args[3]
-			path := strings.Join(args[4:], " ")
-			store.Directories[name] = path
-			saveStore(store)
-			fmt.Printf("Saved '%s' -> %s\n", name, path)
-
-		case "remove":
-			if len(args) < 4 {
-				fmt.Println("Usage: gotocli goto remove <name>")
-				return
-			}
-			name := args[3]
-			if _, exists := store.Directories[name]; !exists {
-				fmt.Fprintf(os.Stderr, "No directory found for '%s'\n", name)
-				os.Exit(1)
-			}
-			delete(store.Directories, name)
-			saveStore(store)
-			fmt.Printf("Removed '%s'\n", name)
-
-		case "list":
-			if len(store.Directories) == 0 {
-				fmt.Println("No directories saved.")
-				return
-			}
-			for name, path := range store.Directories {
-				fmt.Printf("  %s -> %s\n", name, path)
-			}
-
-		case "jump":
-			if len(args) < 4 {
-				fmt.Println("Usage: gotocli goto jump <name>")
-				return
-			}
-			name := args[3]
-			path, exists := store.Directories[name]
-			if !exists {
-				fmt.Fprintf(os.Stderr, "No directory found for '%s'\n", name)
-				os.Exit(1)
-			}
-			fmt.Println(path)
-
-		case "edit":
-			if len(args) < 5 {
-				fmt.Println("Usage: gotocli goto edit <name> <newpath>")
-				return
-			}
-			name := args[3]
-			newPath := strings.Join(args[4:], " ")
-			_, exists := store.Directories[name]
-			if !exists {
-				fmt.Fprintf(os.Stderr, "No directory found with name '%s'\n", name)
-				os.Exit(1)
-			}
-			store.Directories[name] = newPath
-			saveStore(store)
-			fmt.Printf("Updated '%s' -> %s\n", name, newPath)
-
-		case "rename":
-			if len(args) < 5 {
-				fmt.Println("Usage: gotocli goto rename <oldname> <newname>")
-				return
-			}
-			oldName := args[3]
-			newName := args[4]
-			path, exists := store.Directories[oldName]
-			if !exists {
-				fmt.Fprintf(os.Stderr, "No directory found with name '%s'\n", oldName)
-				os.Exit(1)
-			}
-			store.Directories[newName] = path
-			delete(store.Directories, oldName)
-			saveStore(store)
-			fmt.Printf("Renamed '%s' -> '%s'\n", oldName, newName)
-
-		default:
-			fmt.Println("Unknown command:", command)
-		}
+	if mainCommand != "goto" {
+		fmt.Fprintf(os.Stderr, "Unknown command: %s (expected 'goto')\n", mainCommand)
+		return 1
 	}
 
+	store := loadStore()
+
+	switch command {
+	case "add":
+		if len(args) < 5 {
+			return usage("Usage: gotocli goto add <name> <path>")
+		}
+		name := args[3]
+		path := strings.Join(args[4:], " ")
+		store.Directories[name] = path
+		saveStore(store)
+		fmt.Printf("Saved '%s' -> %s\n", name, path)
+
+	case "remove":
+		if len(args) < 4 {
+			return usage("Usage: gotocli goto remove <name>")
+		}
+		name := args[3]
+		if _, exists := store.Directories[name]; !exists {
+			fmt.Fprintf(os.Stderr, "No directory found for '%s'\n", name)
+			return 1
+		}
+		delete(store.Directories, name)
+		saveStore(store)
+		fmt.Printf("Removed '%s'\n", name)
+
+	case "list":
+		if len(store.Directories) == 0 {
+			fmt.Println("No directories saved.")
+			return 0
+		}
+		for name, path := range store.Directories {
+			fmt.Printf("  %s -> %s\n", name, path)
+		}
+
+	case "jump":
+		if len(args) < 4 {
+			return usage("Usage: gotocli goto jump <name>")
+		}
+		name := args[3]
+		path, exists := store.Directories[name]
+		if !exists {
+			fmt.Fprintf(os.Stderr, "No directory found for '%s'\n", name)
+			return 1
+		}
+		fmt.Println(path)
+
+	case "edit":
+		if len(args) < 5 {
+			return usage("Usage: gotocli goto edit <name> <newpath>")
+		}
+		name := args[3]
+		newPath := strings.Join(args[4:], " ")
+		_, exists := store.Directories[name]
+		if !exists {
+			fmt.Fprintf(os.Stderr, "No directory found with name '%s'\n", name)
+			return 1
+		}
+		store.Directories[name] = newPath
+		saveStore(store)
+		fmt.Printf("Updated '%s' -> %s\n", name, newPath)
+
+	case "rename":
+		if len(args) < 5 {
+			return usage("Usage: gotocli goto rename <oldname> <newname>")
+		}
+		oldName := args[3]
+		newName := args[4]
+		path, exists := store.Directories[oldName]
+		if !exists {
+			fmt.Fprintf(os.Stderr, "No directory found with name '%s'\n", oldName)
+			return 1
+		}
+		store.Directories[newName] = path
+		delete(store.Directories, oldName)
+		saveStore(store)
+		fmt.Printf("Renamed '%s' -> '%s'\n", oldName, newName)
+
+	default:
+		fmt.Fprintln(os.Stderr, "Unknown command:", command)
+		return 1
+	}
+
+	return 0
 }
